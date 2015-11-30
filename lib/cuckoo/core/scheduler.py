@@ -175,12 +175,13 @@ class AnalysisManager(threading.Thread):
 
         if self.task.category == "file":
             options["file_name"] = File(self.task.target).get_name()
-            options["file_type"] = File(self.task.target).get_type()
-            options["pe_exports"] = \
-                ",".join(File(self.task.target).get_exported_functions())
+            # Commenting out for now because these aren't populated
+            #options["file_type"] = File(self.task.target).get_type()
+            #options["pe_exports"] = \
+            #    ",".join(File(self.task.target).get_exported_functions())
 
-            package, activity = File(self.task.target).get_apk_entry()
-            self.task.options["apk_entry"] = "%s:%s" % (package, activity)
+            #package, activity = File(self.task.target).get_apk_entry()
+            #self.task.options["apk_entry"] = "%s:%s" % (package, activity)
 
         options["id"] = self.task.id
         options["ip"] = self.machine.resultserver_ip
@@ -263,7 +264,7 @@ class AnalysisManager(threading.Thread):
         target = self.task.target
         if self.task.category == "file":
             target = os.path.basename(target)
-
+ 
         log.info("Starting analysis of %s \"%s\" (task #%d, options \"%s\")",
                  self.task.category.upper(), target, self.task.id,
                  emit_options(self.task.options))
@@ -356,6 +357,8 @@ class AnalysisManager(threading.Thread):
                 log.warning("Unable to stop machine %s: %s",
                             self.machine.label, e)
 
+
+
             # Mark the machine in the database as stopped. Unless this machine
             # has been marked as dead, we just keep it as "started" in the
             # database so it'll not be used later on in this session.
@@ -391,7 +394,7 @@ class AnalysisManager(threading.Thread):
                 log.error("Unable to release machine %s, reason %s. "
                           "You might need to restore it manually.",
                           self.machine.label, e)
-
+     
         return succeeded
 
     def process_results(self):

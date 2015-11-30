@@ -11,6 +11,7 @@
 </div>
 <ul class="nav nav-tabs">
     <li class="active"><a href="#overview" data-toggle="tab">Quick Overview</a></li>
+    <li><a href="#docker" data-toggle="tab">Docker</a></li>
     <li><a href="#static" data-toggle="tab">Static Analysis</a></li>
     {% if analysis.behavior.processes %}
         <li><a href="#behavior" data-toggle="tab" id="graph_hook">Behavioral Analysis ({{ analysis.behavior.processes|filter_key_if_has:"track"|length }})</a></li>
@@ -35,6 +36,9 @@
 <div class="tab-content">
     <div class="tab-pane fade in active" id="overview">
         {% include "analysis/overview/index.html" %}
+    </div>
+    <div class="tab-pane fade in active" id="docker">
+        {% include "analysis/docker/index.html" %}
     </div>
     <div class="tab-pane fade" id="static">
         {% include "analysis/static/index.html" %}

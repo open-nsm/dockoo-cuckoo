@@ -372,8 +372,11 @@ class GuestManager(object):
             self.timeout = options["timeout"] + 60
 
         # Wait for the agent to come alive.
+        # This is probably where the Docker image should be spun up
+        # TODO Spin up Docker image, run, store results in MongoDB
+        log.info("Spin up and run docker image here\n");
+        """
         self.wait_available()
-
         # Check whether this is the new Agent or the old one (by looking at
         # the status code of the index page).
         r = self.get("/")
@@ -415,8 +418,10 @@ class GuestManager(object):
             "cwd": self.analyzer_path,
         }
         self.post("/execute", data=data)
+        """
 
     def wait_for_completion(self):
+        """
         if self.is_old:
             self.old.wait_for_completion()
             return
@@ -435,17 +440,25 @@ class GuestManager(object):
                 status = self.get("/status", timeout=5).json()
             except:
                 log.info("Virtual Machine stopped abruptly")
+                # Do we need to clean up the docker?
+                log.info("Docker cleanup if necessary\n");
                 break
 
             if status["status"] == "complete":
                 log.info("%s: analysis completed successfully", self.vmid)
+                # Shut down our docker container
+                log.info("Shut down docker after succesful completion\n");
                 return
             elif status["status"] == "exception":
                 log.info("%s: analysis caught an exception\n%s",
                          self.vmid, status["description"])
+                # Shut down docker if necessary
+                log.info("Shut down docker after exception\n");
                 return
 
             log.debug("%s: analysis still processing", self.vmid)
+            """
+        log.info("Shut down docker\n");
 
     @property
     def server(self):
