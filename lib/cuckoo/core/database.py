@@ -29,7 +29,7 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
-SCHEMA_VERSION = "1070cd314621"
+SCHEMA_VERSION = "d828880a327"
 TASK_PENDING = "pending"
 TASK_RUNNING = "running"
 TASK_COMPLETED = "completed"
@@ -120,7 +120,7 @@ class Tag(Base):
         return "<Tag('{0}','{1}')>".format(self.id, self.name)
 
     def __init__(self, name):
-        self.name = name
+        self.name = name      
 
 class Guest(Base):
     """Tracks guest run."""
@@ -281,6 +281,7 @@ class Task(Base):
     sample = relationship("Sample", backref="tasks")
     guest = relationship("Guest", uselist=False, backref="tasks", cascade="save-update, delete")
     errors = relationship("Error", backref="tasks", cascade="save-update, delete")
+    docker_images = Column(String(255), nullable=True)
 
     def to_dict(self):
         """Converts object to dict.
@@ -805,11 +806,13 @@ class Database(object):
         finally:
             session.close()
 
+        
     # The following functions are mostly used by external utils.
 
     @classlock
     def add(self, obj, timeout=0, package="", options="", priority=1,
-            custom="", owner="", machine="", platform="", tags=None,
+            custom="", owner="", machine="", platform="", tags=None, 
+            docker_images = None,
             memory=False, enforce_timeout=False, clock=None, category=None):
         """Add a task to database.
         @param obj: object to add (File or URL).
@@ -821,6 +824,7 @@ class Database(object):
         @param machine: selected machine.
         @param platform: platform.
         @param tags: optional tags that must be set for machine selection
+        @param docker_images: optional docker images to use
         @param memory: toggle full memory dump.
         @param enforce_timeout: toggle full timeout execution.
         @param clock: virtual machine clock time
@@ -843,6 +847,7 @@ class Database(object):
                             file_size=obj.get_size(),
                             file_type=obj.get_type(),
                             ssdeep=obj.get_ssdeep())
+           
             session.add(sample)
 
             try:
@@ -884,7 +889,9 @@ class Database(object):
             for tag in tags.split(","):
                 tag = self._get_or_create(session, Tag, name=tag.strip())
                 task.tags.append(tag)
-
+        if docker_images:
+            docker_img_list = ",".join(docker_images)
+            task.docker_images = docker_img_list
         if clock:
             if isinstance(clock, str) or isinstance(clock, unicode):
                 try:
@@ -911,7 +918,8 @@ class Database(object):
 
     def add_path(self, file_path, timeout=0, package="", options="",
                  priority=1, custom="", owner="", machine="", platform="",
-                 tags=None, memory=False, enforce_timeout=False, clock=None):
+                 tags=None, docker_images = None,
+                 memory=False, enforce_timeout=False, clock=None):
         """Add a task to database from file path.
         @param file_path: sample path.
         @param timeout: selected timeout.
@@ -922,6 +930,7 @@ class Database(object):
         @param machine: selected machine.
         @param platform: platform.
         @param tags: Tags required in machine selection
+        @param docker_images: optional docker images to use
         @param memory: toggle full memory dump.
         @param enforce_timeout: toggle full timeout execution.
         @param clock: virtual machine clock time
@@ -938,11 +947,13 @@ class Database(object):
             priority = 1
 
         return self.add(File(file_path), timeout, package, options, priority,
-                        custom, owner, machine, platform, tags, memory,
+                        custom, owner, machine, platform, tags, 
+                        docker_images, memory,
                         enforce_timeout, clock, "file")
 
     def add_url(self, url, timeout=0, package="", options="", priority=1,
-                custom="", owner="", machine="", platform="", tags=None,
+                custom="", owner="", machine="", platform="", 
+                tags=None, docker_images = None,
                 memory=False, enforce_timeout=False, clock=None):
         """Add a task to database from url.
         @param url: url.
@@ -954,6 +965,7 @@ class Database(object):
         @param machine: selected machine.
         @param platform: platform.
         @param tags: tags for machine selection
+        @param docker_images: optional docker images to use
         @param memory: toggle full memory dump.
         @param enforce_timeout: toggle full timeout execution.
         @param clock: virtual machine clock time
@@ -967,7 +979,8 @@ class Database(object):
             priority = 1
 
         return self.add(URL(url), timeout, package, options, priority,
-                        custom, owner, machine, platform, tags, memory,
+                        custom, owner, machine, platform, tags, 
+                        docker_images, memory,
                         enforce_timeout, clock, "url")
 
     def add_baseline(self, timeout=0, owner="", machine="", memory=False):

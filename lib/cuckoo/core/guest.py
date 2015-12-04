@@ -373,7 +373,8 @@ class GuestManager(object):
 
         # Wait for the agent to come alive.
         # This is probably where the Docker image should be spun up
-        # TODO Spin up Docker image, run, store results in MongoDB
+        # TODO Spin up Docker image, run, store results in Mongo
+        log.info("Docker_images: %s", options["docker_images"])
         log.info("Spin up and run docker image here\n");
         """
         self.wait_available()

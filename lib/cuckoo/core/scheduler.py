@@ -193,6 +193,7 @@ class AnalysisManager(threading.Thread):
         options["enforce_timeout"] = self.task.enforce_timeout
         options["clock"] = self.task.clock
         options["terminate_processes"] = self.cfg.cuckoo.terminate_processes
+        options["docker_images"] = self.task.docker_images
 
         if not self.task.timeout:
             options["timeout"] = self.cfg.timeouts.default

@@ -6,6 +6,8 @@ import os
 import sys
 import pymongo
 
+import re
+
 from django.conf import settings
 from django.shortcuts import redirect, render_to_response
 from django.template import RequestContext
@@ -20,6 +22,7 @@ from lib.cuckoo.core.rooter import vpns
 
 results_db = pymongo.MongoClient(settings.MONGO_HOST, settings.MONGO_PORT)[settings.MONGO_DB]
 cfg = Config()
+
 
 def force_int(value):
     try:
@@ -48,6 +51,13 @@ def dropped_filepath(task_id, sha1):
 
 def render_index(request, kwargs={}):
     files = os.listdir(os.path.join(settings.CUCKOO_PATH, "analyzer", "windows", "modules", "packages"))
+
+
+    cfg_docker = Config()
+    cfg_docker.__init__("docker")
+    docker_section = cfg_docker.docker.images
+    docker_images = []
+    docker_images = re.split('\s*,\s*', docker_section)
 
     packages = []
     for name in files:
@@ -81,6 +91,7 @@ def render_index(request, kwargs={}):
         "vpns": vpns.values(),
         "route": cfg.routing.route,
         "internet": cfg.routing.internet,
+        "docker_images": docker_images,
     }
 
     values.update(kwargs)
@@ -101,6 +112,7 @@ def index(request, task_id=None, sha1=None):
     enforce_timeout = bool(request.POST.get("enforce_timeout", False))
     tags = request.POST.get("tags", None)
 
+    docker_images = request.POST.getlist("docker_images", None)
     options = parse_options(options)
 
     # The following POST fields take precedence over the options field.
@@ -137,7 +149,8 @@ def index(request, task_id=None, sha1=None):
                                   custom=custom,
                                   memory=memory,
                                   enforce_timeout=enforce_timeout,
-                                  tags=tags)
+                                  tags=tags,
+                                  docker_images=docker_images)
             if task_id:
                 task_ids.append(task_id)
 
@@ -173,7 +186,8 @@ def index(request, task_id=None, sha1=None):
                                       custom=custom,
                                       memory=memory,
                                       enforce_timeout=enforce_timeout,
-                                      tags=tags)
+                                      tags=tags,
+                                      docker_images=docker_images)
                 if task_id:
                     task_ids.append(task_id)
 
@@ -191,7 +205,8 @@ def index(request, task_id=None, sha1=None):
                                   custom=custom,
                                   memory=memory,
                                   enforce_timeout=enforce_timeout,
-                                  tags=tags)
+                                  tags=tags,
+                                  docker_images=docker_images)
             if task_id:
                 task_ids.append(task_id)
 
@@ -215,6 +230,8 @@ def index(request, task_id=None, sha1=None):
                                  tags=tags)
             if task_id:
                 task_ids.append(task_id)
+
+    
 
     tasks_count = len(task_ids)
     if tasks_count > 0:
