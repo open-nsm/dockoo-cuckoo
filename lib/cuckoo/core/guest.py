@@ -23,6 +23,7 @@ from lib.cuckoo.common.utils import TimeoutServer
 
 log = logging.getLogger(__name__)
 
+# Eventually junk this class entirely
 class OldGuestManager(object):
     """Old and deprecated Guest Manager.
 
@@ -373,9 +374,6 @@ class GuestManager(object):
 
         # Wait for the agent to come alive.
         # This is probably where the Docker image should be spun up
-        # TODO Spin up Docker image, run, store results in Mongo
-        log.info("Docker_images: %s", options["docker_images"])
-        log.info("Spin up and run docker image here\n");
         """
         self.wait_available()
         # Check whether this is the new Agent or the old one (by looking at
@@ -459,7 +457,7 @@ class GuestManager(object):
 
             log.debug("%s: analysis still processing", self.vmid)
             """
-        log.info("Shut down docker\n");
+
 
     @property
     def server(self):

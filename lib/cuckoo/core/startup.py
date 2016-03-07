@@ -72,6 +72,7 @@ def check_configs():
         os.path.join(CUCKOO_ROOT, "conf", "virtualbox.conf"),
         os.path.join(CUCKOO_ROOT, "conf", "vmware.conf"),
         os.path.join(CUCKOO_ROOT, "conf", "xenserver.conf"),
+        os.path.join(CUCKOO_ROOT, "conf", "docker.conf"),
     ]
 
     for config in configs:

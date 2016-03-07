@@ -15,6 +15,10 @@ class Dockerproc(Processing):
     def run(self):
         self.key = "dockerproc"
         # TODO Fill this in with real results
+        # Retrieve results from appropriate directory
+        print (self.analysis_path)
+        # Which docker containers were supposed to run?
+        print (self.task['docker_images'])
         results = {
             "summary": "docker not yet implemented",
             "docker_image": "N/A",
