@@ -54,8 +54,9 @@ def render_index(request, kwargs={}):
 
 
     cfg_docker = Config()
-    cfg_docker.__init__("docker")
-    docker_section = cfg_docker.docker.images
+    cfg_docker.__init__("docker-mach")
+    #docker_section = cfg_docker.docker.images
+    docker_section = cfg_docker.get("docker-mach").get("images")
     docker_images = []
     docker_images = re.split('\s*,\s*', docker_section)
 
