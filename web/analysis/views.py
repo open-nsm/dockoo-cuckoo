@@ -547,3 +547,4 @@ def pcapstream(request, task_id, conntuple):
     packets = list(network.packets_for_stream(fobj, offset))
     # TODO: starting from django 1.7 we should use JsonResponse.
     return HttpResponse(json.dumps(packets), content_type="application/json")
+

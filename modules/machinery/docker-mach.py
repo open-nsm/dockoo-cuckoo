@@ -104,6 +104,10 @@ class VirtualBox(Machinery):
             # Access output logs
             output = c.logs(cntnr)
             print(output)
+            # file to store results
+            storage_file = os.path.join(CUCKOO_ROOT, "storage", "analyses",str(task.id),docker_tool)
+            f = open(storage_file, 'w')
+            f.write(output)
 
     def stop(self, label):
         pass
