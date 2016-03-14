@@ -246,7 +246,6 @@ def report(request, task_id):
     else:
         domainlookups = dict()
         iplookups = dict()
-
     return render_to_response("analysis/report.html",
                               {"analysis": report, "domainlookups": domainlookups, "iplookups": iplookups},
                               context_instance=RequestContext(request))
