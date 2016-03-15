@@ -62,7 +62,7 @@ class Dockerproc(Processing):
 
         summary = "No suspicious results found"
         if (len(suspicious_results) > 0):
-            summary = "Suspicious results found in " + ",".join(suspicious_results)
+            summary = "Suspicious results found by " + ",".join(suspicious_results)
         #parser_file = os.path.join(CUCKOO_ROOT,'modules','processing', (self.options_docker['output_parser']) + '.py')
         #print(parser_file)
         results = {

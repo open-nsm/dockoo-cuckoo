@@ -1,30 +1,20 @@
 {% load analysis_tags %}
-<div class="panel panel-default">
-    <table class="table table-striped">
-        <tr>
-            <th>File Processed</th>
-            <td>{{analysis.dockerproc.file_processed}}</td>
-        </tr>
-        <tr>
-            <th>Docker Containers</th>
-            <td>{{analysis.dockerproc.docker_image}}</td>
-        </tr>
-        <tr>
-            <th>Summary</th>
-            <td>{{analysis.dockerproc.summary}}</td>
-        </tr>
-        <tr>
-            <th>Timestamp</th>
-            <td>{{analysis.dockerproc.timestamp}}</td>
-        </tr>
-    </table>
 
+<div class="tabbable tabs">
+    <ul class="nav nav-pills" style="margin-bottom: 0;">
+        <li class="active"><a href="#docker_summary_tab" data-toggle="tab">Summary</a></li>
+        {% for key, value in analysis.dockerproc.result.iteritems %}
+        <li><a href="#docker_results_tab" data-toggle="tab">{{key}}</a></li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade in active" id="docker_summary_tab">{% include "analysis/docker/_summary.html" %}</div>
+        {% for key, value in analysis.dockerproc.result.iteritems %}
+            {% with result_dic=value %}
+        <div class="tab-pane fade" id="docker_results_tab">{% include "analysis/docker/_results.html" %}</div>
+            {% endwith %}
+        {% endfor %}
+    </div>
 
 </div>
-
-
-{% for key, value in analysis.dockerproc.result.iteritems %}
-      <p><strong>Container: {{key}}</strong></p>
-      <p><strong>Value:</strong></p>
-      <pre>{{value}}</pre>
-{% endfor %}
