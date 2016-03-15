@@ -890,7 +890,14 @@ class Database(object):
                 tag = self._get_or_create(session, Tag, name=tag.strip())
                 task.tags.append(tag)
         if docker_images:
-            docker_img_list = ",".join(docker_images)
+            # Default value
+            docker_img_list=""
+            # If it's a list passed in from web form, created comma-separated string
+            if (type(docker_images) == list):
+                docker_img_list = ",".join(docker_images)
+            # If it's already a string (via REST API), don't mess with it
+            if (type(docker_images == unicode)):
+                docker_img_list=str(docker_images)
             task.docker_images = docker_img_list
         if clock:
             if isinstance(clock, str) or isinstance(clock, unicode):

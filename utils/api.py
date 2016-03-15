@@ -64,6 +64,7 @@ def tasks_create_file():
     owner = request.form.get("owner", "")
     memory = request.form.get("memory", False)
     clock = request.form.get("clock", None)
+    docker_images = request.form.get("docker_images", "")
 
     if memory:
         memory = True
@@ -87,7 +88,8 @@ def tasks_create_file():
         owner=owner,
         memory=memory,
         enforce_timeout=enforce_timeout,
-        clock=clock
+        clock=clock,
+        docker_images=docker_images
     )
 
     return jsonify(task_id=task_id)
@@ -105,6 +107,7 @@ def tasks_create_url():
     tags = request.form.get("tags", None)
     custom = request.form.get("custom", "")
     owner = request.form.get("owner", "")
+    docker_images = request.form.get("docker_images", "")
 
     memory = request.form.get("memory", False)
     if memory:
@@ -129,7 +132,8 @@ def tasks_create_url():
         owner=owner,
         memory=memory,
         enforce_timeout=enforce_timeout,
-        clock=clock
+        clock=clock,
+        docker_images=docker_images
     )
 
     return jsonify(task_id=task_id)
