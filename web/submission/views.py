@@ -113,7 +113,10 @@ def index(request, task_id=None, sha1=None):
     enforce_timeout = bool(request.POST.get("enforce_timeout", False))
     tags = request.POST.get("tags", None)
 
-    docker_images = request.POST.getlist("docker_images", None)
+    # try to fix list problem
+    docker_list = request.POST.getlist("docker_images", None)
+    #docker_images = request.POST.getlist("docker_images", None)
+    docker_images = ','.join(docker_list)
     options = parse_options(options)
 
     # The following POST fields take precedence over the options field.

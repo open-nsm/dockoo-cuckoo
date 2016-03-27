@@ -4,7 +4,7 @@
     <ul class="nav nav-pills" style="margin-bottom: 0;">
         <li class="active"><a href="#docker_summary_tab" data-toggle="tab">Summary</a></li>
         {% for key, value in analysis.dockerproc.result.iteritems %}
-        <li><a href="#docker_results_tab" data-toggle="tab">{{key}}</a></li>
+        <li><a href="#docker_results_tab-{{ key }}" data-toggle="tab">{{key}}</a></li>
         {% endfor %}
     </ul>
 
@@ -12,7 +12,7 @@
         <div class="tab-pane fade in active" id="docker_summary_tab">{% include "analysis/docker/_summary.html" %}</div>
         {% for key, value in analysis.dockerproc.result.iteritems %}
             {% with result_dic=value %}
-        <div class="tab-pane fade" id="docker_results_tab">{% include "analysis/docker/_results.html" %}</div>
+        <div class="tab-pane fade" id="docker_results_tab-{{ key }}">{% include "analysis/docker/_results.html" %}</div>
             {% endwith %}
         {% endfor %}
     </div>
