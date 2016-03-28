@@ -3,6 +3,7 @@ import ConfigParser
 import time
 import os
 from os import path
+import shutil
 import docker.tls as tls
 
 from lib.cuckoo.common.abstracts import Machinery
@@ -19,17 +20,32 @@ class VirtualBox(Machinery):
         docker_tasks = task.docker_images
         print docker_images
         print docker_tasks
-        # Where is our input file?
+        # This is our input file, but it's a symlink
         input_file = os.path.join(CUCKOO_ROOT, "storage", "analyses",
                                   str(task.id), "binary")
 
-        print input_file
-
+        # Name of file stored in storage binaries that symlink points to
         malware_file = os.path.basename(os.path.realpath(input_file))
-        print malware_file
-        # File to be analyzed
-        # Dummy value -- need to track down symlink rep by input_file
-        # malware_file = "1d53a61b4ec187230f23fd66076ff605"
+
+        # malware_file is a very long string, and at least one Docker
+        # container (Mastiff) doesn't like it.  So hence this workaround
+
+        # create temporary file in binaries directory
+        tmpdir = CUCKOO_ROOT +  "/storage/binaries/" + str(task.id)
+        if not os.path.exists(tmpdir):
+            os.makedirs(tmpdir)
+
+        # Get the original name of the file
+        (targpath,orig_file_name) = os.path.split(task.target)
+
+        # The full path of malware_file
+        too_long_filename = os.path.realpath(input_file)
+
+        # copy malware_file binary to temp directory
+        shutil.move(too_long_filename,tmpdir)
+
+        # rename malware_file to (shorter) original file name
+        os.rename(tmpdir + '/' + malware_file, tmpdir + '/' + orig_file_name)
 
         # For now -- need to support comma-delimited multiple in future
         docker_task_list = docker_tasks.split(',')
@@ -39,8 +55,11 @@ class VirtualBox(Machinery):
             # Read in parameters from the config file
 
             container_name = self.options.get(docker_tool).container_name
-            #local_working_dir = self.options.pescanner.local_working_dir
-            local_working_dir = os.path.join(CUCKOO_ROOT, "storage", "binaries")
+
+            #local_working_dir = os.path.join(CUCKOO_ROOT, "storage", "binaries")
+            # Use temporary directory with shorter filename as the share
+            local_working_dir = tmpdir
+            # Get values from config file
             docker_bind_dir = self.options.get(docker_tool).docker_bind_dir
             command_line_exe = self.options.get(docker_tool).command_line_exe
             options = self.options.get(docker_tool).options
@@ -50,7 +69,9 @@ class VirtualBox(Machinery):
             docker_exec = self.options.get('docker-mach').docker_exec
 
             # The command to run -- add options later?
-            command2run = command_line_exe + " " + malware_file
+            #command2run = command_line_exe + " " + docker_bind_dir + "/" + malware_file
+            # Command to run with original filename
+            command2run = command_line_exe + " " + docker_bind_dir + "/" + orig_file_name
 
             c = docker.Client()
 
@@ -108,6 +129,9 @@ class VirtualBox(Machinery):
             storage_file = os.path.join(CUCKOO_ROOT, "storage", "analyses",str(task.id),docker_tool)
             f = open(storage_file, 'w')
             f.write(output)
+
+        # Clean up temp directory
+        shutil.rmtree(tmpdir)
 
     def stop(self, label):
         pass
